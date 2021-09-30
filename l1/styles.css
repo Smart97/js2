@@ -1,0 +1,29 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+header{
+background-color: rgb(30, 9, 87);
+height: 60px;
+display: flex;
+align-items: center;
+justify-content: end;
+padding: 2px 0 2px 0;
+box-sizing: border-box;
+}
+.cart-button{
+    height: 100%;
+    width: 75px;
+    background-color: rgb(157, 147, 184);
+    border: 1px solid black;
+}
+.goods-list{
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-around;
+}
+.goods-item{
+    border: 1px solid rgb(30, 9, 87);
+    width: 75px;
+    text-align: center;
+}
