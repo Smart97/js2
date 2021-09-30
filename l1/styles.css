@@ -23,7 +23,7 @@ box-sizing: border-box;
     justify-content: space-around;
 }
 .goods-item{
-    border: 1px solid rgb(30, 9, 87);
+    border: 1px solid rgb(30, 9, 86);
     width: 75px;
     text-align: center;
 }
