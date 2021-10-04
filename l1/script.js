@@ -28,8 +28,8 @@ class goodsItem {
         this.title = title;
         this.price = price;
     }
-    render() {
-        return `<div class="goods-item"><h3>${this.title}</h3><p>${this.price}</p></div>`
+    render(container) {
+        return `<div class="${container}"><h3>${this.title}</h3><p>${this.price}</p></div>`
     }
 }
 class goodsList {
@@ -48,12 +48,47 @@ class goodsList {
         let listHTML = '';
         this.goods.forEach(good => {
             const goodItem = new goodsItem(good.title, good.price);
-            listHTML += goodItem.render();
+            listHTML += goodItem.render('goods-item');
             console.log(good)
         }); 
          document.querySelector(container).insertAdjacentHTML('beforeend', listHTML)    
     }
+    calculatePrice() {
+        let totalPrice = 0;
+        this.goods.forEach(item => {totalPrice += item.price}) //стоимость конкретного товара с учетом количества элементов будет считаться в самом товаре в calculatePrice()
+    }
 }
+
+//HW
+class basketItem extends goodsItem { 
+   deleteItem(){
+
+   };
+   calculatePrice() {
+       //считает стоимость товара 
+   }
+   getPrice() {
+        //получаем цену товара
+   }
+   getQuantity(){
+        //получаем количество товаров
+   }
+};
+
+class basket extends goodsList {
+    addItem(){
+        //добавление в корзину из общего списка товаров
+    };
+    deleteItem(){
+        //удаляет предмет из корзины
+    };
+    changeQuantity(){
+        //Добавляем или убираем товар по одному или сразу до определенного значения, если убирается последний то вызывается deleteItem()
+    };
+
+};
+
+
 const list = new goodsList();
 list.fetchGoods();
 list.render('.goods-list');
