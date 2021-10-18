@@ -1,5 +1,59 @@
 const APIURL = "https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses";
-class goodsItem {
+
+const app = new Vue(
+    {
+        el: '#app',
+        data: {
+            goods: [],
+            filteredGoods: [],
+            searchLine: '',
+            cartVisibility: false
+        },
+        methods: {
+            fetchGoods() {
+                fetch(`${APIURL}/catalogData.json`).then((result) => {
+                    return result.json();
+                })
+                .then((result) => {
+                    this.goods = result.map(item => ({title: item.product_name, price: item.price, id: item.id_product}))
+                    this.filteredGoods = this.goods;
+                })
+                .catch((err) => {
+                    console.log('fetch error '+ err.text)
+                });
+            },
+            searchGoods() {
+                let pattern = new RegExp(this.searchLine.trim(), 'i')
+                this.filteredGoods = this.goods; 
+                this.filteredGoods = this.goods.filter(good => pattern.test(good.title))
+            },
+            cartSwitch() {
+                this.cartVisibility = !this.cartVisibility;
+            }
+        },
+        mounted() {
+            this.fetchGoods()
+        },
+        computed: {
+
+        }
+      
+    }
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* class goodsItem {
     constructor(title, price, id) {
         this.title = title;
         this.price = price;
@@ -14,12 +68,6 @@ class goodsList {
         this.goods = [];
     }
     fetchGoods() {
-     /*    this.goods = [
-            { title: 'Shirt', price: 150 },
-            { title: 'Socks', price: 50 },
-            { title: 'Jacket', price: 350 },
-            { title: 'Shoes', price: 250 },
-        ]; */
         
         fetch(`${APIURL}/catalogData.json`)
         .then((result) => {
@@ -121,3 +169,4 @@ list.fetchGoods();
 //list.render('.goods-list');
 const basket = new basketClass();
 basket.fetchGoods();
+ */
