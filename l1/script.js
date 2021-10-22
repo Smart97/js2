@@ -1,5 +1,101 @@
 const APIURL = "https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses";
 
+
+Vue.component('goods-list', {
+    props:['goods'],
+    template: `
+    <div class="goods-list">
+        <goods-item 
+            v-for='good in goods'
+            v-bind:title='good.title'
+            v-bind:price='good.price'>
+        </goods-item>
+    </div>
+    `
+});
+
+Vue.component('goods-item', {
+    props: {
+        title: String,
+        price: Number,
+    },
+    template: `
+    <div class="goods-item">
+        <h3>{{ title }}</h3>
+        <p>{{ price }}</p>
+    </div>
+    `
+});
+
+Vue.component('cart', {
+    template:`
+    <div class="cart">
+        <cart-good 
+        v-if='visibility'
+        v-for='good in cartGoods'
+        v-bind:name = good.name
+        v-bind:price = good.price
+        v-bind:quantity = good.quantity
+        ></cart-good>
+    </div>
+    `,
+    props: {
+        cartGoods: Array,
+        visibility: Boolean,
+    },
+    
+});
+
+Vue.component('cart-good', {
+    template: `
+    <div class="cart-good">
+        <h2>{{ name }}</h2>
+        <p>{{ price }}</p>
+        <p>{{ quantity }}</p>
+    </div>
+    `,
+    props: {
+        name: String,
+        price: Number,
+        quantity: Number,
+    },
+})
+
+
+Vue.component('search', {
+    template: `
+    <div class="search">
+        <input type="text" id="search-line" v-model="searchLine" @keyup.enter='search'>
+        <button @click='search'>Искать</button>
+    </div>
+    `,
+    data() {
+       return {
+            searchLine: ''
+        }
+    },
+    methods: {
+        search() {
+            this.$emit('search', this.searchLine )
+        }
+    }
+});
+
+Vue.component('error', {
+    template: `
+    <div class="error-container" v-if=visibility>
+        <div class='error-message'>
+            <h2>Fetch error, status {{status}}</h2>
+        </div>
+    </div>
+    `,
+    props: {
+        status: Number,
+        visibility: Boolean,
+    }
+})
+
+
 const app = new Vue(
     {
         el: '#app',
@@ -7,29 +103,48 @@ const app = new Vue(
             goods: [],
             filteredGoods: [],
             searchLine: '',
-            cartVisibility: false
+            cartVisibility: false,
+            isFetchError: false,
+            errorStatus:0,
+            cartGoods: [{
+                name: 'Мышка',
+                price: 1000,
+                quantity: 2,
+            }, {
+                name: 'ноут',
+                price: 10000,
+                quantity: 1,
+            }],
         },
         methods: {
             fetchGoods() {
                 fetch(`${APIURL}/catalogData.json`).then((result) => {
-                    return result.json();
+                    if(result.status == 200) {
+                        return result.json();
+                    } else {
+                        console.log(result.status);
+                        this.isFetchError = !this.isFetchError;
+                        this.errorStatus = result.status;
+                        //errorSwitch(); аналог cartSwitch()  вызывает referenceerror
+                    };
                 })
                 .then((result) => {
                     this.goods = result.map(item => ({title: item.product_name, price: item.price, id: item.id_product}))
                     this.filteredGoods = this.goods;
                 })
                 .catch((err) => {
-                    console.log('fetch error '+ err.text)
+                    console.log('fetch error '+ err)
                 });
             },
-            searchGoods() {
-                let pattern = new RegExp(this.searchLine.trim(), 'i')
+            searchGoods(searchLine) {
+                let pattern = new RegExp(searchLine.trim(), 'i')
                 this.filteredGoods = this.goods; 
                 this.filteredGoods = this.goods.filter(good => pattern.test(good.title))
+                this.searchLine = searchLine;
             },
             cartSwitch() {
                 this.cartVisibility = !this.cartVisibility;
-            }
+            },
         },
         mounted() {
             this.fetchGoods()
@@ -40,133 +155,3 @@ const app = new Vue(
       
     }
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* class goodsItem {
-    constructor(title, price, id) {
-        this.title = title;
-        this.price = price;
-        this.id = id;
-    }
-    render(container) {
-        return `<div class="${container}"><h3>${this.title}</h3><p>${this.price}</p></div>`
-    }
-}
-class goodsList {
-    constructor() {
-        this.goods = [];
-    }
-    fetchGoods() {
-        
-        fetch(`${APIURL}/catalogData.json`)
-        .then((result) => {
-            return result.json();
-        })
-        .then((result) => {
-            this.goods = result.map(item => ({title: item.product_name, price: item.price, id: item.id_product}))
-            this.render('.goods-list')
-        })
-        .catch((err) => {
-            console.log(err.text)
-        });
-    }
-    render(container) {
-        let listHTML = '';
-        this.goods.forEach(good => {
-            const goodItem = new goodsItem(good.title, good.price, good.id);
-            listHTML += goodItem.render('goods-item');
-        }); 
-         document.querySelector(container).insertAdjacentHTML('beforeend', listHTML)    
-    }
-    calculatePrice() {
-        let totalPrice = 0;
-        this.goods.forEach(item => {totalPrice += item.price}) //стоимость конкретного товара с учетом количества элементов будет считаться в самом товаре в calculatePrice()
-    }
-}
-
-
-class basketItem extends goodsItem { 
-   constructor() {
-        super();
-   }
-   toJSON() {
-        this.data = [];
-        this.data.push(this.title);
-        this.data.push(this.price);
-        this.data.push(this.id);
-        return JSON.stringify(this.data);
-   };
-   deleteItem(){
-
-   };
-   calculatePrice() {
-       //считает стоимость товара 
-   }
-   getPrice() {
-        //получаем цену товара
-   }
-   getQuantity(){
-        //получаем количество товаров
-   }    
-   addItem(){
-        fetch(`${APIURL}/addToBasket.json`, {
-            method: 'POST',
-            headers: 'application/json;charset=utf-8',
-            body: this.toJSON()
-        })
-    };
-    deleteItem(){
-        fetch(`${APIURL}/deleteFromBasket.json`, {
-            method: 'POST',
-            headers: 'application/json;charset=utf-8',
-            body: this.toJSON()
-        })
-    };
-};
-
-class basketClass extends goodsList {
-    constructor() {
-       super();
-       this.countGoods = 0;
-       this.totalPrice = 0;
-        
-    }
-    fetchGoods() {
-        fetch(`${APIURL}/getBasket.json`)
-        .then((result) => {
-            return result.json()
-        })
-        .then((result) => {
-            this.goods = result.contents.map(good => ({title: good.product_name, price: good.price, id: good.id_product, quantity: good.quantity}))
-            this.countGoods = result.countGoods;
-            this.totalPrice = result.amount;
-        })
-        .catch((err) => {
-            console.log(err.text)
-        });
-    }
-
-    changeQuantity(){
-        //Добавляем или убираем товар по одному или сразу до определенного значения, если убирается последний то вызывается deleteItem()
-    };
-
-};
-
-
-const list = new goodsList();
-list.fetchGoods();
-//list.render('.goods-list');
-const basket = new basketClass();
-basket.fetchGoods();
- */

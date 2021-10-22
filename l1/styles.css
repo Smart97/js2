@@ -34,3 +34,15 @@ box-sizing: border-box;
     background-color: gray;
     width: 311px;
 }
+.text_center{
+    text-align: center;
+}
+.error-container {
+    display: flex;
+    justify-content: center;
+}
+.error-message {
+    border: 2px solid #f00;
+    width: 25%;
+    text-align: center;
+}
