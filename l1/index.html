@@ -8,27 +8,23 @@
 
   <div id="app">
     <header>
-      <input type="text" id="search-line" v-model="searchLine" @keyup.enter='searchGoods'>
-      <button @click='searchGoods'>Искать</button>
+      <search @search='searchGoods'></search>
       <button class="cart-button" type="button" @click='cartSwitch()'>Корзина</button>
     </header>
     <main>
-      <div class="cart" v-if='cartVisibility'>
-        <div class="cart-good">
-          <h2>name</h2>
-          <p>price</p>
-          <p>quantity</p>
-        </div>
+      <cart 
+      :cart-goods='cartGoods'
+      :visibility='cartVisibility'
+      ></cart>
+      <goods-list 
+      :goods='filteredGoods'
+      ></goods-list>
+      <div class="text_center" v-if='filteredGoods == 0'>
+        <p>Товар {{searchLine}} не найден</p>
       </div>
-      <div class="goods-list">
-        <div class="goods-item" v-for='good in filteredGoods'>
-          <h3>{{good.title}}</h3>
-          <p>{{good.price}}</p>
-        </div>
-        <div  v-if='filteredGoods == 0'>
-          <p>Товар {{searchLine}} не найден</p>
-        </div>
-      </div>
+      <error 
+      :visibility='isFetchError'
+      :status='errorStatus'></error>
     </main>
   </div>
     
